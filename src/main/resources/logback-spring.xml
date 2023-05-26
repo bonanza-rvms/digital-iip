@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration scan="true" scanPeriod="1 minutes">
+	<include resource="org/springframework/boot/logging/logback/defaults.xml" />
+	<property value="/home/rvms/log/admin" name="LOG_FILE_PREFIX" />
+	<appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+ 		<filter class="com.bonanza.sjin.config.log.LogFilter" />
+		<encoder>
+			<charset>UTF-8</charset>
+			<pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} ${LOG_LEVEL_PATTERN:-%5p}\(${PID:- }\)[%t] [%logger{30}:%line][%M] %msg%n</pattern>
+		</encoder>
+	</appender>
+	<appender class="ch.qos.logback.core.rolling.RollingFileAppender" name="FILE">
+ 		<filter class="com.bonanza.sjin.config.log.LogFilter" />
+        <encoder>
+			<charset>UTF-8</charset>
+			<pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} ${LOG_LEVEL_PATTERN:-%5p}\(${PID:- }\)[%t] [%logger{30}:%line][%M] %msg%n</pattern>
+		</encoder>
+		<file>${LOG_FILE_PREFIX}.log</file>
+		<rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+			<fileNamePattern>${LOG_FILE_PREFIX}_%d{yyyyMMdd}.%i.log
+			</fileNamePattern>
+			<maxFileSize>3GB</maxFileSize>
+			<maxHistory>14</maxHistory>
+		</rollingPolicy>
+	</appender>
+	
+    <appender name="mask" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder class="ch.qos.logback.core.encoder.LayoutWrappingEncoder">
+           <layout class="com.bonanza.sjin.config.log.MaskingPatternLayout">
+               <maskPattern>\"SSN\"\s*:\s*\"(.*?)\"</maskPattern> <!-- SSN JSON pattern -->
+               <maskPattern>\"password\"\s*:\s*\"(.*?)\"</maskPattern> <!-- password JSON pattern -->
+               <maskPattern>\"mobNo\"\s*:\s*\"(.*?)\"</maskPattern> <!-- mobNo JSON pattern -->
+               <maskPattern>\"holderMobNo\"\s*:\s*\"(.*?)\"</maskPattern> <!-- holderMobNo JSON pattern -->
+               <maskPattern>\"custNm\"\s*:\s*\"(.*?)\"</maskPattern> <!-- custNm JSON pattern -->
+               <maskPattern>\"holderName\"\s*:\s*\"(.*?)\"</maskPattern> <!-- holderName JSON pattern -->
+               <maskPattern>\"acctNo\"\s*:\s*\"(.*?)\"</maskPattern> <!-- acctNo JSON pattern -->
+               <maskPattern>\"accountNum\"\s*:\s*\"(.*?)\"</maskPattern> <!-- accountNum JSON pattern -->
+               <maskPattern>\"virAcctNo\"\s*:\s*\"(.*?)\"</maskPattern> <!-- virAcctNo JSON pattern -->
+               <maskPattern>\"virAccountNum\"\s*:\s*\"(.*?)\"</maskPattern> <!-- virAccountNum JSON pattern -->
+               <maskPattern>\"brth\"\s*:\s*\"(.*?)\"</maskPattern> <!-- brth JSON pattern -->
+               <maskPattern>\"holderBirth\"\s*:\s*\"(.*?)\"</maskPattern> <!-- holderBirth JSON pattern -->
+               <maskPattern>\"address\"\s*:\s*\"(.*?)\"</maskPattern> <!-- Address JSON pattern -->
+               <maskPattern>(\d+\.\d+\.\d+\.\d+)</maskPattern> <!-- Ip address IPv4 pattern -->
+               <maskPattern>(\w+@\w+\.\w+)</maskPattern> <!-- Email pattern -->
+               <pattern>%-5p [%d{ISO8601,UTC}] [%thread] %c: %m%n%rootException</pattern>
+            </layout>
+        </encoder>
+    </appender>
+
+	<springProfile name="default">
+		<logger name="com.bonanza.sjin" level="DEBUG"  additivity="false">
+			<appender-ref ref="mask" />
+		</logger>
+		<root level="INFO"> 
+			<appender-ref ref="CONSOLE" />
+		</root>
+	</springProfile>
+
+	<springProfile name="!default">
+		<logger name="com.bonanza.sjin" level="DEBUG"  additivity="false">
+			<appender-ref ref="mask" />
+		</logger>
+		<root level="INFO">
+			<appender-ref ref="CONSOLE" />
+		</root>
+	</springProfile>
+</configuration>

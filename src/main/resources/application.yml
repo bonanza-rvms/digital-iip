@@ -1,0 +1,44 @@
+spring:
+  datasource:
+    url: jdbc:mariadb://13.124.31.173:3306/api_market   #AWS DB Info
+    username: api                                #AWS DB Info
+    password: api1234!@                          #AWS DB Info
+    driver-class-name: org.mariadb.jdbc.Driver
+    type: com.zaxxer.hikari.HikariDataSource    
+    hikari:
+      pool-name: rvms-hikari-pool
+      maximum-pool-size: 20
+      connection-test-query: select 1
+  sql:
+    init:
+      encoding: UTF-8
+      platform: mysql
+      
+  jpa:
+    hibernate:
+      ddl-auto: update
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+    show-sql: true
+    format_sql: true
+    use_sql_comments: true
+upbit:
+  api:
+    secretKey: aaa
+    accessKey: bbb
+    apiUrl: https://api.upbit.com
+    wssUrl: wss://api.upbit.com/websocket/v1
+    
+bithumb:
+  api:
+    secretKey: aaa
+    accessKey: bbb
+    apiUrl: https://api.bithumb.com
+    wssUrl: wss://pubwss.bithumb.com/pub/ws
+    
+coinone:
+  api:
+    secretKey: aaa
+    accessKey: bbb
+    apiUrl: https://api.coinone.co.kr
+    wssUrl: wss://public-ws-api.coinone.co.kr
