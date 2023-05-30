@@ -42,3 +42,8 @@ coinone:
     accessKey: bbb
     apiUrl: https://api.coinone.co.kr
     wssUrl: wss://public-ws-api.coinone.co.kr
+    
+coinmarketcap:
+  api:
+    url : https://pro-api.coinmarketcap.com
+    key: 288e41ca-5c9b-4b5b-8bc9-c7597192c316

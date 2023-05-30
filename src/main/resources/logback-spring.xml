@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration scan="true" scanPeriod="1 minutes">
 	<include resource="org/springframework/boot/logging/logback/defaults.xml" />
-	<property value="/home/rvms/log/admin" name="LOG_FILE_PREFIX" />
+	<property value="/home/rvms/log/daip" name="LOG_FILE_PREFIX" />
 	<appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
- 		<filter class="com.bonanza.sjin.config.log.LogFilter" />
+ 		<filter class="com.bonanza.daip.config.log.LogFilter" />
 		<encoder>
 			<charset>UTF-8</charset>
 			<pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} ${LOG_LEVEL_PATTERN:-%5p}\(${PID:- }\)[%t] [%logger{30}:%line][%M] %msg%n</pattern>
 		</encoder>
 	</appender>
 	<appender class="ch.qos.logback.core.rolling.RollingFileAppender" name="FILE">
- 		<filter class="com.bonanza.sjin.config.log.LogFilter" />
+ 		<filter class="com.bonanza.daip.config.log.LogFilter" />
         <encoder>
 			<charset>UTF-8</charset>
 			<pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} ${LOG_LEVEL_PATTERN:-%5p}\(${PID:- }\)[%t] [%logger{30}:%line][%M] %msg%n</pattern>
@@ -26,7 +26,7 @@
 	
     <appender name="mask" class="ch.qos.logback.core.ConsoleAppender">
         <encoder class="ch.qos.logback.core.encoder.LayoutWrappingEncoder">
-           <layout class="com.bonanza.sjin.config.log.MaskingPatternLayout">
+           <layout class="com.bonanza.daip.config.log.MaskingPatternLayout">
                <maskPattern>\"SSN\"\s*:\s*\"(.*?)\"</maskPattern> <!-- SSN JSON pattern -->
                <maskPattern>\"password\"\s*:\s*\"(.*?)\"</maskPattern> <!-- password JSON pattern -->
                <maskPattern>\"mobNo\"\s*:\s*\"(.*?)\"</maskPattern> <!-- mobNo JSON pattern -->
@@ -48,7 +48,7 @@
     </appender>
 
 	<springProfile name="default">
-		<logger name="com.bonanza.sjin" level="DEBUG"  additivity="false">
+		<logger name="com.bonanza.daip" level="DEBUG"  additivity="false">
 			<appender-ref ref="mask" />
 		</logger>
 		<root level="INFO"> 
@@ -57,7 +57,7 @@
 	</springProfile>
 
 	<springProfile name="!default">
-		<logger name="com.bonanza.sjin" level="DEBUG"  additivity="false">
+		<logger name="com.bonanza.daip" level="DEBUG"  additivity="false">
 			<appender-ref ref="mask" />
 		</logger>
 		<root level="INFO">
