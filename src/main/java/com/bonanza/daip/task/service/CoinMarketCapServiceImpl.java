@@ -8,6 +8,7 @@ import java.security.KeyManagementException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
@@ -98,7 +99,10 @@ public class CoinMarketCapServiceImpl implements CoinMarketCapService {
 	 */
 	@Override
 	public String coinCheckIn() {
-		String body = coinMetaData();
+		//tb_coin_code에서 코인정보 조회(50건? 100건?)
+		
+		String body = coinMetaData(Arrays.asList("BTC", "ETH"));
+		
 	    try {
 	    	JSONParser jsonParser = new JSONParser();
 	    	JSONObject obj = (JSONObject) jsonParser.parse(body);
@@ -144,11 +148,11 @@ public class CoinMarketCapServiceImpl implements CoinMarketCapService {
 	 * @return
 	 */
 	@Override
-	public String coinMetaData() {
+	public String coinMetaData(List<String> list) {
 		String apiUri = "/v2/cryptocurrency/info";
 		List<NameValuePair> paratmers = new ArrayList<NameValuePair>();
 		paratmers.add(new BasicNameValuePair("aux","logo,description"));
-	    paratmers.add(new BasicNameValuePair("symbol","BTC,ETH"));
+	    paratmers.add(new BasicNameValuePair("symbol",list.toString()));
 	    
 		return makeApiCall(apiUri, paratmers);
 	}

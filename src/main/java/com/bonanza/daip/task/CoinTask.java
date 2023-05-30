@@ -192,8 +192,10 @@ public class CoinTask {
 			coinCodeRepository.saveAll(coinOneCoins);
 		}
 	}
+	
+	
 	@Scheduled(fixedDelay = 1000 * 60 * 1)
 	public void updateCoinInfo() throws Exception {
-		coinMarketCapService.coinMetaData();
+		coinMarketCapService.coinCheckIn();
 	}
 }

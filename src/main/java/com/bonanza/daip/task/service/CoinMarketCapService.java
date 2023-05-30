@@ -1,5 +1,7 @@
 package com.bonanza.daip.task.service;
 
+import java.util.List;
+
 public interface CoinMarketCapService {
 
 	/**
@@ -9,10 +11,11 @@ public interface CoinMarketCapService {
 	 */
 	String coinCheckIn();
 
+
 	/**
 	 * 코인정보를 조회 합니다.
 	 * @return
 	 */
-	String coinMetaData();
+	String coinMetaData(List<String> list);
 
 }
