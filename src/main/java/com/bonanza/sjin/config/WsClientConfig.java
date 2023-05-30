@@ -55,13 +55,13 @@ public class WsClientConfig {
 	 * 웹소켓 스타터
 	 */
 	public void start() {
-		try {
+//		try {
 //			startWsBithumb();
 //			startWsUpbit();
-			startWsCoinOne();
-		} catch (IOException e) {
-			log.error("error", e);
-		}
+//			startWsCoinOne();
+//		} catch (IOException e) {
+//			log.error("error", e);
+//		}
 	}
 	
 	/**

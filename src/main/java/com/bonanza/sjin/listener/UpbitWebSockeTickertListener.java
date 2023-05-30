@@ -57,8 +57,7 @@ public class UpbitWebSockeTickertListener extends WebSocketManager{
 
     @Override
     public void setParameter(List<String> codes) {
-    	super.setSiseType(SiseType.TICKER);
-    	super.setJson(JsonUtil.toJson(List.of(Ticket.of(UUID.randomUUID().toString()), Type.of(super.getSiseType(), codes))));
+    	super.setJson(JsonUtil.toJson(List.of(Ticket.of(UUID.randomUUID().toString()), Type.of(SiseType.TICKER, codes))));
     }
     
     @Data(staticConstructor = "of")

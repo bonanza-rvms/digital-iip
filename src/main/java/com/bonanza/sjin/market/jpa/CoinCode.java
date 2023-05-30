@@ -47,8 +47,4 @@ public class CoinCode {
     @Comment("코인원")
     @Column(name = "coinone", length = 30)
     private String coinone;
-    
-    @Comment("사용여부")
-    @Column(name = "use_yn", length = 1)
-    private String useYn;
 }

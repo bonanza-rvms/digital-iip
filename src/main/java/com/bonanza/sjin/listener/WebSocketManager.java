@@ -5,8 +5,6 @@ import java.util.concurrent.TimeUnit;
 
 import org.jetbrains.annotations.NotNull;
 
-import com.bonanza.sjin.market.type.SiseType;
-
 import jakarta.annotation.Nullable;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -27,7 +25,6 @@ public abstract class WebSocketManager extends WebSocketListener implements WebS
 	private OkHttpClient client;
 	private Request request;
 	private String json;
-	private SiseType siseType;
 	private String wssUrl;
     
 	@Override

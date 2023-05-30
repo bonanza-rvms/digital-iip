@@ -17,6 +17,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+import org.yaml.snakeyaml.util.UriEncoder;
 
 import com.bonanza.sjin.config.enums.BithumbConfig;
 import com.bonanza.sjin.config.enums.CoinOneConfig;
@@ -30,14 +31,17 @@ import com.bonanza.sjin.market.coinone.result.CoinOneMarketCode.CurrencyUnit;
 import com.bonanza.sjin.market.jpa.CoinCode;
 import com.bonanza.sjin.market.jpa.candle.FiveMinutesCandle;
 import com.bonanza.sjin.market.jpa.candle.OneMinutesCandle;
+import com.bonanza.sjin.market.jpa.rt.TradeSise;
 import com.bonanza.sjin.market.upbit.candle.MinuteCandle;
 import com.bonanza.sjin.market.upbit.client.UpbitCandleClient;
 import com.bonanza.sjin.market.upbit.enums.MarketType;
 import com.bonanza.sjin.market.upbit.enums.MinuteType;
 import com.bonanza.sjin.market.upbit.result.MarketCode;
+import com.bonanza.sjin.market.upbit.result.TradeResult;
 import com.bonanza.sjin.repository.CoinCodeRepository;
 import com.bonanza.sjin.repository.FiveMinutesCandleRepository;
 import com.bonanza.sjin.repository.OneMinutesCandleRepository;
+import com.bonanza.sjin.repository.TradeSiseRepository;
 import com.bonanza.sjin.utils.JsonUtil;
 
 import lombok.RequiredArgsConstructor;
@@ -60,6 +64,9 @@ public class ScheduleServiceImpl implements ScheduleService {
 	private final BithumbConfig bithumbConfig;
 
 	private final CoinOneConfig coinOneConfig;
+	
+	@Autowired
+	private TradeSiseRepository tradeSiseRepository;
 	
 	@Autowired
 	CoinCodeRepository coinCodeRepository;
@@ -174,6 +181,9 @@ public class ScheduleServiceImpl implements ScheduleService {
 		for (MarketCode code : list) {
 			CoinCode coin = coinCodeRepository.findByCode(code.getMarket());
 
+			//원화마켓만 대상
+			if(!code.getMarket().contains("KRW")) continue; 
+			
 			if (coin == null) {
 				CoinCode item = new CoinCode();
 				item.setCode(code.getMarket());
@@ -187,6 +197,7 @@ public class ScheduleServiceImpl implements ScheduleService {
 				coin.setUpbit(code.getMarket());
 				target.add(coin);
 			}
+		
 		}
 		return target;
     }
@@ -237,7 +248,7 @@ public class ScheduleServiceImpl implements ScheduleService {
      */
     @Override
     public List<CoinCode> collectCoinByCoinOne() throws Exception {
-    	String url = String.format("%s/public/v2/currencies", coinOneConfig.getApiUrl());
+    	String url = String.format("%s/public/v2/markets/KRW", coinOneConfig.getApiUrl());
         ResponseEntity<String> response = restTemplate.exchange(URI.create(url), HttpMethod.GET, HttpEntity.EMPTY, String.class);
         if (response.getStatusCode() != HttpStatus.OK) {
             throw new Exception("StatusCode = " + response.getStatusCode().value());
@@ -247,21 +258,26 @@ public class ScheduleServiceImpl implements ScheduleService {
 		
 		CoinOneMarketCode ccList = JsonUtil.fromJson(body, CoinOneMarketCode.class);
 		if ("success".equals(ccList.getResult())) {
-			for (CurrencyUnit code : ccList.getCurrencies()) {
-				String codeNm = "KRW" + "-" + code.getSymbol(); // 업비트 방식이 메인
+			for (CurrencyUnit code : ccList.getMarkets()) {
+				
+				//원화마켓만 대상
+				if(!code.getQuote_currency().contains("KRW")) continue;
+				
+				String codeNm = "KRW" + "-" + code.getTarget_currency(); // 업비트 방식이 메인
 				CoinCode coin = coinCodeRepository.findByCode(codeNm);
-
-				if (coin == null) {
+				
+				if (coin == null || StringUtils.isBlank(coin.getCode())) {
 					CoinCode item = new CoinCode();
 					item.setCode(codeNm);
-					item.setEnglish_name(code.getName());
 					item.setCoinone(codeNm);
 					target.add(item);
-
+					
 				} else if (StringUtils.isBlank(coin.getCoinone())) {
 					coin.setCoinone(codeNm);
 					target.add(coin);
 				}
+				
+				
 			}
 			if (!target.isEmpty()) {
 				coinCodeRepository.saveAll(target);
@@ -271,12 +287,79 @@ public class ScheduleServiceImpl implements ScheduleService {
 		return target;
     }
     
-    public void inquiryTradeByUpbit() throws Exception {
+    /**
+     * 업비트 체결내역 조회
+     * @param market 마켓 코드 (ex. KRW-BTC)
+     * @param count 체결 개수
+     * @param dayAgo 최근 체결 날짜 기준 7일 이내의 이전 데이터 조회 가능. 비워서 요청 시 가장 최근 체결 날짜 반환. (범위: 1 ~ 7))
+     * @param to 마지막 체결 시각. 형식 : [HHmmss 또는 HH:mm:ss]. 비워서 요청시 가장 최근 데이터
+     * @return
+     * @throws Exception
+     */
+    public List<TradeResult> inquiryTradeByUpbit(MarketType market, int count, int dayAgo, String to) throws Exception {
     	String url = String.format("%s/v1/trades/ticks", upbitConfig.getApiUrl());
-        ResponseEntity<String> response = restTemplate.exchange(URI.create(url), HttpMethod.GET, HttpEntity.EMPTY, String.class);
+    	String queryString = String.format("market=%s&count=%s&to=%s&daysAgo=%s",
+                market.getType(),
+                count,
+                to,
+                dayAgo);
+        String path = String.format("%s?%s", url, UriEncoder.encode(queryString));
+        
+        ResponseEntity<String> response = restTemplate.exchange(URI.create(path), HttpMethod.GET, HttpEntity.EMPTY, String.class);
         if (response.getStatusCode() != HttpStatus.OK) {
             throw new Exception("StatusCode = " + response.getStatusCode().value());
         }
         String body = response.getBody();
+        
+        return JsonUtil.listFromJson(body, TradeResult.class);
+    }
+    
+    
+    public void tradeChecker(TradeMarketType marketType, MarketType market) throws Exception {
+        String nextTo = "";
+        
+        log.debug("nextTo : " + nextTo);
+        
+        /************************************************************************************/
+        //업비트
+        boolean flag = true;
+        log.debug("업비트 최근 체결 내역 체크 시작");
+        while (flag) {
+            int size = 0;
+            long start = System.currentTimeMillis();
+            List<TradeResult> tradeResult = this.inquiryTradeByUpbit(market, 20, 1, nextTo);
+            for (TradeResult trade : tradeResult) {
+            	
+            	if (!tradeSiseRepository.existsBySequentialIdAndMarket(trade.getMarket(),
+            			trade.getTimestamp(), marketType.getType(), trade.getSequential_id())) {
+            		log.debug("trade ::" + trade);
+            		
+            		TradeSise sise = new TradeSise();
+            		sise.setTrade_market(marketType.getType());
+            		sise.setCode(trade.getMarket());
+            		sise.setTrade_date(trade.getTrade_date_utc());
+            		sise.setTrade_time(trade.getTrade_time_utc());
+            		sise.setTimestamp(trade.getTimestamp());
+            		sise.setTrade_price(Double.parseDouble(trade.getTrade_price().toString()));
+            		sise.setTrade_volume(Double.parseDouble(trade.getTrade_volume().toString()));
+            		sise.setPrev_closing_price(Double.parseDouble(trade.getPrev_closing_price().toString()));
+            		sise.setChange_price(Double.parseDouble(trade.getChange_price().toString()));
+            		sise.setAsk_bid(trade.getAsk_bid());
+            		
+            		tradeSiseRepository.save(sise);
+            		size ++;
+            	} else {
+            		flag = false;
+            	}
+            }
+            nextTo = tradeResult.get(tradeResult.size() - 1).getTrade_time_utc();
+            long end = System.currentTimeMillis();
+            log.debug("nextTo ::"+ nextTo);
+            log.debug("type :{}, timestamp:{}",market.getType(), tradeResult.get(tradeResult.size() - 1).getTimestamp());
+            log.debug("flag ::"+ flag);
+            log.debug("minuteCandles cnt ::"+ tradeResult.size());
+            log.debug("========== %s초 =========== 사이즈 : " + (end - start) / 1000.0, size);
+            Thread.sleep(1000);
+        }
     }
 }

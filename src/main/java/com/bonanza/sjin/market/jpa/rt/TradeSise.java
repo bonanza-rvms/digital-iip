@@ -90,5 +90,4 @@ public class TradeSise {
 //    @Comment("스트림 타입")
 //    @Column(name = "stream_type")
 //    private String stream_type; 
-
 }

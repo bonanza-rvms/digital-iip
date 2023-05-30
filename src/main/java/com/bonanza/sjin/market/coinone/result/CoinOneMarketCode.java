@@ -11,19 +11,24 @@ public class CoinOneMarketCode {
     private String result;
     private String error_code;
     private Long server_time;
-    private List<CurrencyUnit> currencies;
+    private List<CurrencyUnit> markets;
     
     @Data
     public static class CurrencyUnit {
-        private String name;
-        private String symbol;
-        private String deposit_status;
-        private String withdraw_status;
-        private Long deposit_confirm_count;
-        private Long max_precision;
-        private String deposit_fee;
-        private String withdrawal_min_amount;
-        private String withdrawal_fee;
+        private String quote_currency;
+        private String target_currency;
+        private String price_unit;
+        private String qty_unit;
+        private String max_order_amount;
+        private String max_price;
+        private String max_qty;
+        private String min_order_amount;
+        private String min_price;
+        private String min_qty;
+        private List<String> order_book_units;
+        private int maintenance_status;
+        private int trade_status;
+        private List<String> order_types;
     }
     
 	@Override

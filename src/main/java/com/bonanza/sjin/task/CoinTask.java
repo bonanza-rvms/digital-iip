@@ -13,9 +13,6 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import com.bonanza.sjin.config.enums.BithumbConfig;
-import com.bonanza.sjin.config.enums.CoinOneConfig;
-import com.bonanza.sjin.config.enums.UpbitConfig;
 import com.bonanza.sjin.market.jpa.CoinCode;
 import com.bonanza.sjin.market.upbit.candle.MinuteCandle;
 import com.bonanza.sjin.market.upbit.client.UpbitAllMarketClient;
@@ -29,7 +26,6 @@ import com.bonanza.sjin.task.service.ScheduleService;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import okhttp3.OkHttpClient;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -167,6 +163,7 @@ public class CoinTask {
 	 * @throws Exception
 	 */
 	@Scheduled(cron = "0 10 9 * * *")
+//	@Scheduled(fixedDelay = 1000 * 60 * 1)
 	public void checkCoinCode() throws Exception {
 		// 업비트 코인 조회
 		List<CoinCode> upbitCoins = scheduleService.collectCoinByUpbit();
@@ -176,7 +173,7 @@ public class CoinTask {
 
 		//////////////////////////////////////////////////////////////////////////
 		// 빗썸 코인 조회
-		String currencys[] = { "KRW", "BTC" };
+		String currencys[] = { "KRW"};
 		for (int i = 0; i < currencys.length; i++) {
 			List<CoinCode> bithumbCoins = scheduleService.collectCoinByBithumb(currencys[i]);
 			if (!upbitCoins.isEmpty()) {

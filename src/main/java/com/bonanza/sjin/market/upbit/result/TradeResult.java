@@ -10,6 +10,7 @@ import lombok.Data;
 public class TradeResult {
     private String type; // trade
     private String code; // KRW-BTC
+    private String market; // KRW-BTC
     private Long timestamp;
     public String trade_date; // 최근 거래 일자(UTC) yyyyMMdd
     public String trade_time; // 최근 거래 시각(UTC) HHmmss
@@ -22,7 +23,8 @@ public class TradeResult {
     private BigDecimal change_price; // 부호 없는 전일 대비 값
     private Long sequential_id; // 체결 번호 (Unique)
     public String stream_type; // TODO enum SNAPSHOT : 스냅샷, REALTIME : 실시간
-    
+    public String trade_date_utc;
+    public String trade_time_utc;
 	@Override
 	public String toString() {
 
