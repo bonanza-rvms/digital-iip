@@ -51,6 +51,14 @@ public class WsClientConfig {
 	@Qualifier("CoinOneTrade")
 	WebSocketService coinOneWebSocketTradeListener;
 	
+	@Autowired
+	@Qualifier("CoinOneTicker")
+	WebSocketService coinOneWebSocketTickerListener;
+	
+	@Autowired
+	@Qualifier("CoinOneOrder")
+	WebSocketService coinOneWebSocketOrderListener;
+	
 	/**
 	 * 웹소켓 스타터
 	 */
@@ -130,5 +138,13 @@ public class WsClientConfig {
 		//체결가
 		coinOneWebSocketTradeListener.setParameter(List.of("BTC_KRW"));
 		coinOneWebSocketTradeListener.connectWebSocket();
+		
+		//현재가
+		coinOneWebSocketTickerListener.setParameter(List.of("BTC_KRW"));
+		coinOneWebSocketTickerListener.connectWebSocket();
+		
+		//호가
+		coinOneWebSocketOrderListener.setParameter(List.of("BTC_KRW"));
+		coinOneWebSocketOrderListener.connectWebSocket();
 	}
 }

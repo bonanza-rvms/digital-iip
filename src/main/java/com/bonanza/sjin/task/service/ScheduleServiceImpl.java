@@ -327,7 +327,7 @@ public class ScheduleServiceImpl implements ScheduleService {
         while (flag) {
             int size = 0;
             long start = System.currentTimeMillis();
-            List<TradeResult> tradeResult = this.inquiryTradeByUpbit(market, 20, 1, nextTo);
+            List<TradeResult> tradeResult = this.inquiryTradeByUpbit(market, 200, 1, nextTo);
             for (TradeResult trade : tradeResult) {
             	
             	if (!tradeSiseRepository.existsBySequentialIdAndMarket(trade.getMarket(),
